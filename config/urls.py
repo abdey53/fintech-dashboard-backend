@@ -28,8 +28,12 @@ def home(request):
 urlpatterns = [
     path('', home),
     path('admin/', admin.site.urls),
-    path('api/', include('core.urls')),
+
+    # ✅ FIRST define JWT routes
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # ✅ THEN include app urls
+    path('api/', include('core.urls')),
 ]
 
