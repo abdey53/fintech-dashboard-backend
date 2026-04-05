@@ -1,28 +1,32 @@
 from rest_framework.permissions import BasePermission
 
-class IsAdmin(BasePermission):
+
+class IsAuthenticatedAndRole(BasePermission):
+    """
+    Base class to check authentication + role
+    """
+    allowed_roles = []
+
     def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated:
+        user = request.user
+
+        if not user or not user.is_authenticated:
             return False
-        return getattr(request.user, "role", None) == "admin"
+
+        return getattr(user, "role", None) in self.allowed_roles
 
 
-class IsAnalystOrAdmin(BasePermission):
-    def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated:
-            return False
-        return getattr(request.user, "role", None) in ["analyst", "admin"]
+class IsAdmin(IsAuthenticatedAndRole):
+    allowed_roles = ['admin']
 
 
-class IsViewer(BasePermission):
-    def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated:
-            return False
-        return getattr(request.user, "role", None) == "viewer"
+class IsAnalystOrAdmin(IsAuthenticatedAndRole):
+    allowed_roles = ['analyst', 'admin']
 
 
-class IsViewerOrAbove(BasePermission):
-    def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated:
-            return False
-        return getattr(request.user, "role", None) in ["viewer", "analyst", "admin"]
+class IsViewer(IsAuthenticatedAndRole):
+    allowed_roles = ['viewer']
+
+
+class IsViewerOrAbove(IsAuthenticatedAndRole):
+    allowed_roles = ['viewer', 'analyst', 'admin']

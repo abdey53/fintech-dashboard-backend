@@ -11,7 +11,7 @@ from .serializers import UserSerializer, FinancialRecordSerializer
 from .permissions import IsAdmin, IsAnalystOrAdmin
 
 
-# 👤 USER VIEWSET (Only Admin)
+# 👤 USER VIEWSET (Admin only)
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -20,15 +20,17 @@ class UserViewSet(viewsets.ModelViewSet):
 
 # 💰 FINANCIAL RECORD VIEWSET
 class FinancialRecordViewSet(viewsets.ModelViewSet):
-    queryset = FinancialRecord.objects.all() 
     serializer_class = FinancialRecordSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = FinancialRecord.objects.all() 
+        queryset = FinancialRecord.objects.all()
 
-        # 🔐 User-based data isolation
-        if self.request.user.role != 'admin':
-            queryset = queryset.filter(created_by=self.request.user)
+        user = self.request.user
+
+        # 🔐 Role-based data access
+        if getattr(user, "role", None) != 'admin':
+            queryset = queryset.filter(created_by=user)
 
         # 🔎 Filtering
         type_param = self.request.query_params.get('type')
@@ -58,7 +60,7 @@ class FinancialRecordViewSet(viewsets.ModelViewSet):
 
 # 📊 DASHBOARD SUMMARY
 @api_view(['GET'])
-@permission_classes([IsAnalystOrAdmin])
+@permission_classes([IsAuthenticated, IsAnalystOrAdmin])
 def dashboard_summary(request):
     records = FinancialRecord.objects.all()
 
@@ -77,7 +79,7 @@ def dashboard_summary(request):
 
 # 📊 CATEGORY SUMMARY
 @api_view(['GET'])
-@permission_classes([IsAnalystOrAdmin])
+@permission_classes([IsAuthenticated, IsAnalystOrAdmin])
 def category_summary(request):
     records = FinancialRecord.objects.all()
 
@@ -91,7 +93,7 @@ def category_summary(request):
 
 # 🕒 RECENT TRANSACTIONS
 @api_view(['GET'])
-@permission_classes([IsAnalystOrAdmin])
+@permission_classes([IsAuthenticated, IsAnalystOrAdmin])
 def recent_transactions(request):
     records = FinancialRecord.objects.all()
 
@@ -106,16 +108,18 @@ def recent_transactions(request):
 
 # 📈 MONTHLY TRENDS
 @api_view(['GET'])
-@permission_classes([IsAnalystOrAdmin])
+@permission_classes([IsAuthenticated, IsAnalystOrAdmin])
 def monthly_trends(request):
     records = FinancialRecord.objects.all()
 
     if request.user.role != 'admin':
         records = records.filter(created_by=request.user)
 
-    data = records.annotate(month=TruncMonth('date')) \
-        .values('month', 'type') \
-        .annotate(total=Sum('amount')) \
+    data = (
+        records.annotate(month=TruncMonth('date'))
+        .values('month', 'type')
+        .annotate(total=Sum('amount'))
         .order_by('month')
+    )
 
     return Response(data)
