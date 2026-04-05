@@ -111,4 +111,20 @@ python manage.py createsuperuser
 Run server:
 python manage.py runserver
 
+🧠 Assumptions
+Roles are predefined (Admin, Analyst, Viewer)
+Only Admin can modify users and financial records
+Analysts can view records and analytics
+Viewers can only view dashboard data
+📁 Project Structure
+finance-backend/
+│── core/
+│   ├── models.py
+│   ├── views.py
+│   ├── serializers.py
+│   ├── permissions.py
+│   ├── urls.py
+│── config/
+│── manage.py
+
 ### للحصول على token:
