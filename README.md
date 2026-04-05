@@ -96,26 +96,36 @@ This API uses **JWT (JSON Web Token)** authentication.
 }
 
 ⚙️ Setup Instructions
+
 Clone the repository:
 git clone https://github.com/your-username/fintech-dashboard-backend.git
 cd fintech-dashboard-backend
+
 Create virtual environment:
 python -m venv venv
 venv\Scripts\activate
+
 Install dependencies:
 pip install -r requirements.txt
+
 Run migrations:
 python manage.py migrate
+
 Create superuser:
 python manage.py createsuperuser
+
 Run server:
 python manage.py runserver
 
 🧠 Assumptions
 Roles are predefined (Admin, Analyst, Viewer)
+
 Only Admin can modify users and financial records
+
 Analysts can view records and analytics
+
 Viewers can only view dashboard data
+
 📁 Project Structure
 finance-backend/
 │── core/
@@ -126,5 +136,3 @@ finance-backend/
 │   ├── urls.py
 │── config/
 │── manage.py
-
-### للحصول على token:
